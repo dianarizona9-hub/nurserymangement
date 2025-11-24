@@ -202,6 +202,20 @@ export default function Distributed() {
                 keyboardType="number-pad"
               />
 
+              <TextInput
+                style={styles.input}
+                placeholder="Destination (e.g., Enrichment Site, Agroforestry)"
+                value={formData.destination}
+                onChangeText={(text) => setFormData({ ...formData, destination: text })}
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder="Location/Address"
+                value={formData.location}
+                onChangeText={(text) => setFormData({ ...formData, location: text })}
+              />
+
               <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
                 <Text style={styles.submitButtonText}>Add Record</Text>
               </TouchableOpacity>
