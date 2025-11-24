@@ -46,7 +46,7 @@ export default function Distributed() {
 
   const loadSeedlings = async () => {
     try {
-      const response = await api.get('/dead-seedlings');
+      const response = await api.get('/distributed-seedlings');
       setSeedlings(response.data);
     } catch (error) {
       console.error('Error loading seedlings:', error);
@@ -57,16 +57,18 @@ export default function Distributed() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.type || !formData.quantity) {
+    if (!formData.type || !formData.quantity || !formData.destination || !formData.location) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
     try {
-      await api.post('/dead-seedlings', {
+      await api.post('/distributed-seedlings', {
         date: formData.date.toISOString().split('T')[0],
         type: formData.type,
         quantity: parseInt(formData.quantity),
+        destination: formData.destination,
+        location: formData.location,
         user_id: 'temp',
       });
       
@@ -88,7 +90,7 @@ export default function Distributed() {
         style: 'destructive',
         onPress: async () => {
           try {
-            await api.delete(`/dead-seedlings/${id}`);
+            await api.delete(`/distributed-seedlings/${id}`);
             loadSeedlings();
             Alert.alert('Success', 'Record deleted');
           } catch (error) {
@@ -104,14 +106,16 @@ export default function Distributed() {
       date: new Date(),
       type: '',
       quantity: '',
+      destination: '',
+      location: '',
     });
   };
 
-  const renderItem = ({ item }: { item: DeadSeedling }) => (
+  const renderItem = ({ item }: { item: DistributedSeedling }) => (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <View style={styles.cardHeaderLeft}>
-          <Ionicons name="alert-circle" size={24} color="#F44336" />
+          <Ionicons name="share-social" size={24} color="#9C27B0" />
           <View style={styles.cardHeaderText}>
             <Text style={styles.cardTitle}>{item.type}</Text>
             <Text style={styles.cardDate}>{item.date}</Text>
@@ -126,6 +130,14 @@ export default function Distributed() {
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>Quantity:</Text>
           <Text style={styles.infoValue}>{item.quantity}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Destination:</Text>
+          <Text style={styles.infoValue}>{item.destination}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Location:</Text>
+          <Text style={styles.infoValue}>{item.location}</Text>
         </View>
       </View>
     </View>
