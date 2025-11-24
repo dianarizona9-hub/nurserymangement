@@ -83,6 +83,15 @@ export default function TabsLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="distributed"
+        options={{
+          title: 'Distributed',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="share-social" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
