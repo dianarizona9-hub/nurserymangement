@@ -17,15 +17,15 @@ import { Ionicons } from '@expo/vector-icons';
 import DatePicker from 'react-native-date-picker';
 import api from '../utils/api';
 
-interface DeadSeedling {
+interface DiscardedSeedling {
   _id: string;
   date: string;
   type: string;
   quantity: number;
 }
 
-export default function Dead() {
-  const [seedlings, setSeedlings] = useState<DeadSeedling[]>([]);
+export default function Discarded() {
+  const [seedlings, setSeedlings] = useState<DiscardedSeedling[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
@@ -42,7 +42,7 @@ export default function Dead() {
 
   const loadSeedlings = async () => {
     try {
-      const response = await api.get('/dead-seedlings');
+      const response = await api.get('/discarded-seedlings');
       setSeedlings(response.data);
     } catch (error) {
       console.error('Error loading seedlings:', error);
@@ -59,7 +59,7 @@ export default function Dead() {
     }
 
     try {
-      await api.post('/dead-seedlings', {
+      await api.post('/discarded-seedlings', {
         date: formData.date.toISOString().split('T')[0],
         type: formData.type,
         quantity: parseInt(formData.quantity),
@@ -84,7 +84,7 @@ export default function Dead() {
         style: 'destructive',
         onPress: async () => {
           try {
-            await api.delete(`/dead-seedlings/${id}`);
+            await api.delete(`/discarded-seedlings/${id}`);
             loadSeedlings();
             Alert.alert('Success', 'Record deleted');
           } catch (error) {
