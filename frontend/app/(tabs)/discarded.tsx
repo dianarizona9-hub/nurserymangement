@@ -107,7 +107,7 @@ export default function Discarded() {
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <View style={styles.cardHeaderLeft}>
-          <Ionicons name="alert-circle" size={24} color="#F44336" />
+          <Ionicons name="trash" size={24} color="#9E9E9E" />
           <View style={styles.cardHeaderText}>
             <Text style={styles.cardTitle}>{item.type}</Text>
             <Text style={styles.cardDate}>{item.date}</Text>
