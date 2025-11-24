@@ -189,7 +189,7 @@ export default function Delivery() {
             </View>
 
             <ScrollView style={styles.form}>
-              <TouchableOpacity style={styles.input} onPress={() => setDatePickerOpen(true)}>
+              <TouchableOpacity style={styles.dateInput} onPress={() => setDatePickerOpen(true)}>
                 <Text style={styles.inputText}>
                   {formData.date.toISOString().split('T')[0]}
                 </Text>
@@ -395,6 +395,18 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderWidth: 1,
     borderColor: '#e0e0e0',
+  },
+  dateInput: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   inputText: {
     fontSize: 16,
