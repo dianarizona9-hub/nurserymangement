@@ -89,11 +89,21 @@ class NurseryProduced(BaseModel):
     user_id: str
     created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
 
+class DistributedSeedling(BaseModel):
+    date: str
+    type: str
+    quantity: int
+    destination: str
+    location: str
+    user_id: str
+    created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
+
 class DashboardStats(BaseModel):
     total_received: int
     total_dead: int
     total_discarded: int
     total_produced: int
+    total_distributed: int
     survival_rate: float
     total_in_nursery: int
 
