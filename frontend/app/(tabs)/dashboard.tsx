@@ -174,6 +174,16 @@ export default function Dashboard() {
             <Text style={styles.smallCardLabel}>Discarded</Text>
           </View>
         </View>
+
+        <View style={styles.row}>
+          <View style={styles.smallCard}>
+            <Ionicons name="share-social" size={24} color="#9C27B0" />
+            <Text style={styles.smallCardValue}>{stats?.total_distributed || 0}</Text>
+            <Text style={styles.smallCardLabel}>Distributed</Text>
+          </View>
+
+          <View style={styles.smallCard} />
+        </View>
       </View>
 
       <TouchableOpacity
