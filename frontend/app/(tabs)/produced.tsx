@@ -46,7 +46,7 @@ export default function Produced() {
 
   const loadSeedlings = async () => {
     try {
-      const response = await api.get('/dead-seedlings');
+      const response = await api.get('/nursery-produced');
       setSeedlings(response.data);
     } catch (error) {
       console.error('Error loading seedlings:', error);
@@ -57,16 +57,18 @@ export default function Produced() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.type || !formData.quantity) {
+    if (!formData.type || !formData.quantity || !formData.parent_plant || !formData.propagation_method) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
     try {
-      await api.post('/dead-seedlings', {
+      await api.post('/nursery-produced', {
         date: formData.date.toISOString().split('T')[0],
         type: formData.type,
         quantity: parseInt(formData.quantity),
+        parent_plant: formData.parent_plant,
+        propagation_method: formData.propagation_method,
         user_id: 'temp',
       });
       
@@ -88,7 +90,7 @@ export default function Produced() {
         style: 'destructive',
         onPress: async () => {
           try {
-            await api.delete(`/dead-seedlings/${id}`);
+            await api.delete(`/nursery-produced/${id}`);
             loadSeedlings();
             Alert.alert('Success', 'Record deleted');
           } catch (error) {
@@ -104,14 +106,16 @@ export default function Produced() {
       date: new Date(),
       type: '',
       quantity: '',
+      parent_plant: '',
+      propagation_method: '',
     });
   };
 
-  const renderItem = ({ item }: { item: DeadSeedling }) => (
+  const renderItem = ({ item }: { item: NurseryProduced }) => (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <View style={styles.cardHeaderLeft}>
-          <Ionicons name="alert-circle" size={24} color="#F44336" />
+          <Ionicons name="leaf" size={24} color="#FF9800" />
           <View style={styles.cardHeaderText}>
             <Text style={styles.cardTitle}>{item.type}</Text>
             <Text style={styles.cardDate}>{item.date}</Text>
@@ -126,6 +130,14 @@ export default function Produced() {
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>Quantity:</Text>
           <Text style={styles.infoValue}>{item.quantity}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Parent Plant:</Text>
+          <Text style={styles.infoValue}>{item.parent_plant}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Method:</Text>
+          <Text style={styles.infoValue}>{item.propagation_method}</Text>
         </View>
       </View>
     </View>
