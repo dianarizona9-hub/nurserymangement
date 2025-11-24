@@ -17,15 +17,17 @@ import { Ionicons } from '@expo/vector-icons';
 import DatePicker from 'react-native-date-picker';
 import api from '../utils/api';
 
-interface DeadSeedling {
+interface DistributedSeedling {
   _id: string;
   date: string;
   type: string;
   quantity: number;
+  destination: string;
+  location: string;
 }
 
-export default function Dead() {
-  const [seedlings, setSeedlings] = useState<DeadSeedling[]>([]);
+export default function Distributed() {
+  const [seedlings, setSeedlings] = useState<DistributedSeedling[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
@@ -34,6 +36,8 @@ export default function Dead() {
     date: new Date(),
     type: '',
     quantity: '',
+    destination: '',
+    location: '',
   });
 
   useEffect(() => {
