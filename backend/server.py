@@ -307,14 +307,16 @@ async def get_dashboard_stats(username: str = Depends(get_current_user)):
     dead = await db.dead_seedlings.find({"user_id": username}).to_list(1000)
     discarded = await db.discarded_seedlings.find({"user_id": username}).to_list(1000)
     produced = await db.nursery_produced.find({"user_id": username}).to_list(1000)
+    distributed = await db.distributed_seedlings.find({"user_id": username}).to_list(1000)
     
     total_received = sum(s.get("quantity", 0) for s in received)
     total_dead = sum(s.get("quantity", 0) for s in dead)
     total_discarded = sum(s.get("quantity", 0) for s in discarded)
     total_produced = sum(s.get("quantity", 0) for s in produced)
+    total_distributed = sum(s.get("quantity", 0) for s in distributed)
     
     # Calculate total in nursery and survival rate
-    total_in_nursery = total_received + total_produced - total_dead - total_discarded
+    total_in_nursery = total_received + total_produced - total_dead - total_discarded - total_distributed
     total_input = total_received + total_produced
     survival_rate = ((total_in_nursery / total_input) * 100) if total_input > 0 else 0
     
@@ -323,6 +325,7 @@ async def get_dashboard_stats(username: str = Depends(get_current_user)):
         "total_dead": total_dead,
         "total_discarded": total_discarded,
         "total_produced": total_produced,
+        "total_distributed": total_distributed,
         "survival_rate": round(survival_rate, 2),
         "total_in_nursery": total_in_nursery
     }
