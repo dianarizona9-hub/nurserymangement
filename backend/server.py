@@ -276,6 +276,29 @@ async def delete_nursery_produced(id: str, username: str = Depends(get_current_u
         raise HTTPException(status_code=404, detail="Item not found")
     return {"message": "Deleted successfully"}
 
+# Distributed Seedlings endpoints
+@api_router.post("/distributed-seedlings")
+async def create_distributed_seedling(seedling: DistributedSeedling, username: str = Depends(get_current_user)):
+    seedling_dict = seedling.dict()
+    seedling_dict["user_id"] = username
+    result = await db.distributed_seedlings.insert_one(seedling_dict)
+    seedling_dict["_id"] = str(result.inserted_id)
+    return seedling_dict
+
+@api_router.get("/distributed-seedlings")
+async def get_distributed_seedlings(username: str = Depends(get_current_user)):
+    seedlings = await db.distributed_seedlings.find({"user_id": username}).sort("created_at", -1).to_list(1000)
+    for s in seedlings:
+        s["_id"] = str(s["_id"])
+    return seedlings
+
+@api_router.delete("/distributed-seedlings/{id}")
+async def delete_distributed_seedling(id: str, username: str = Depends(get_current_user)):
+    result = await db.distributed_seedlings.delete_one({"_id": ObjectId(id), "user_id": username})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return {"message": "Deleted successfully"}
+
 # Dashboard statistics
 @api_router.get("/dashboard/stats", response_model=DashboardStats)
 async def get_dashboard_stats(username: str = Depends(get_current_user)):
