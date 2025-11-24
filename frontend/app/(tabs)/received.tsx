@@ -1,0 +1,407 @@
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Modal,
+  TextInput,
+  Alert,
+  RefreshControl,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import DatePicker from 'react-native-date-picker';
+import api from '../utils/api';
+
+interface SeedlingReceived {
+  _id: string;
+  date: string;
+  type: string;
+  supplier: string;
+  price: number;
+  lot_number: string;
+  quantity: number;
+}
+
+export default function Received() {
+  const [seedlings, setSeedlings] = useState<SeedlingReceived[]>([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    date: new Date(),
+    type: '',
+    supplier: '',
+    price: '',
+    lot_number: '',
+    quantity: '',
+  });
+
+  useEffect(() => {
+    loadSeedlings();
+  }, []);
+
+  const loadSeedlings = async () => {
+    try {
+      const response = await api.get('/seedlings-received');
+      setSeedlings(response.data);
+    } catch (error) {
+      console.error('Error loading seedlings:', error);
+      Alert.alert('Error', 'Failed to load data');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.type || !formData.supplier || !formData.price || !formData.lot_number || !formData.quantity) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    try {
+      await api.post('/seedlings-received', {
+        date: formData.date.toISOString().split('T')[0],
+        type: formData.type,
+        supplier: formData.supplier,
+        price: parseFloat(formData.price),
+        lot_number: formData.lot_number,
+        quantity: parseInt(formData.quantity),
+        user_id: 'temp',
+      });
+      
+      setModalVisible(false);
+      resetForm();
+      loadSeedlings();
+      Alert.alert('Success', 'Seedling record added successfully');
+    } catch (error) {
+      console.error('Error adding seedling:', error);
+      Alert.alert('Error', 'Failed to add record');
+    }
+  };
+
+  const handleDelete = (id: string) => {
+    Alert.alert('Delete Record', 'Are you sure you want to delete this record?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await api.delete(`/seedlings-received/${id}`);
+            loadSeedlings();
+            Alert.alert('Success', 'Record deleted');
+          } catch (error) {
+            Alert.alert('Error', 'Failed to delete record');
+          }
+        },
+      },
+    ]);
+  };
+
+  const resetForm = () => {
+    setFormData({
+      date: new Date(),
+      type: '',
+      supplier: '',
+      price: '',
+      lot_number: '',
+      quantity: '',
+    });
+  };
+
+  const renderItem = ({ item }: { item: SeedlingReceived }) => (
+    <View style={styles.card}>
+      <View style={styles.cardHeader}>
+        <View style={styles.cardHeaderLeft}>
+          <Ionicons name="leaf" size={24} color="#4CAF50" />
+          <View style={styles.cardHeaderText}>
+            <Text style={styles.cardTitle}>{item.type}</Text>
+            <Text style={styles.cardDate}>{item.date}</Text>
+          </View>
+        </View>
+        <TouchableOpacity onPress={() => handleDelete(item._id)} style={styles.deleteButton}>
+          <Ionicons name="trash-outline" size={20} color="#F44336" />
+        </TouchableOpacity>
+      </View>
+      
+      <View style={styles.cardBody}>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Supplier:</Text>
+          <Text style={styles.infoValue}>{item.supplier}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Quantity:</Text>
+          <Text style={styles.infoValue}>{item.quantity}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Price:</Text>
+          <Text style={styles.infoValue}>${item.price}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Lot Number:</Text>
+          <Text style={styles.infoValue}>{item.lot_number}</Text>
+        </View>
+      </View>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={seedlings}
+        renderItem={renderItem}
+        keyExtractor={(item) => item._id}
+        contentContainerStyle={styles.listContainer}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); loadSeedlings(); }} />
+        }
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Ionicons name="leaf-outline" size={64} color="#ccc" />
+            <Text style={styles.emptyText}>No seedlings received yet</Text>
+            <Text style={styles.emptySubtext}>Tap the + button to add a record</Text>
+          </View>
+        }
+      />
+
+      <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
+        <Ionicons name="add" size={32} color="#fff" />
+      </TouchableOpacity>
+
+      <Modal visible={modalVisible} animationType="slide" transparent>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.modalContainer}
+        >
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Add Seedling Received</Text>
+              <TouchableOpacity onPress={() => { setModalVisible(false); resetForm(); }}>
+                <Ionicons name="close" size={28} color="#333" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.form}>
+              <TouchableOpacity style={styles.input} onPress={() => setDatePickerOpen(true)}>
+                <Text style={styles.inputText}>
+                  {formData.date.toISOString().split('T')[0]}
+                </Text>
+                <Ionicons name="calendar-outline" size={20} color="#666" />
+              </TouchableOpacity>
+
+              <TextInput
+                style={styles.input}
+                placeholder="Seedling Type"
+                value={formData.type}
+                onChangeText={(text) => setFormData({ ...formData, type: text })}
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder="Supplier"
+                value={formData.supplier}
+                onChangeText={(text) => setFormData({ ...formData, supplier: text })}
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder="Price"
+                value={formData.price}
+                onChangeText={(text) => setFormData({ ...formData, price: text })}
+                keyboardType="decimal-pad"
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder="Lot Number"
+                value={formData.lot_number}
+                onChangeText={(text) => setFormData({ ...formData, lot_number: text })}
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder="Quantity"
+                value={formData.quantity}
+                onChangeText={(text) => setFormData({ ...formData, quantity: text })}
+                keyboardType="number-pad"
+              />
+
+              <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+                <Text style={styles.submitButtonText}>Add Record</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+
+      <DatePicker
+        modal
+        open={datePickerOpen}
+        date={formData.date}
+        mode="date"
+        onConfirm={(date) => {
+          setDatePickerOpen(false);
+          setFormData({ ...formData, date });
+        }}
+        onCancel={() => setDatePickerOpen(false)}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  listContainer: {
+    padding: 16,
+    paddingBottom: 80,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  cardHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  cardHeaderText: {
+    marginLeft: 12,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  cardDate: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 2,
+  },
+  deleteButton: {
+    padding: 8,
+  },
+  cardBody: {
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+    paddingTop: 12,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  infoLabel: {
+    fontSize: 14,
+    color: '#666',
+  },
+  infoValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 64,
+  },
+  emptyText: {
+    fontSize: 18,
+    color: '#666',
+    marginTop: 16,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: '#999',
+    marginTop: 8,
+  },
+  fab: {
+    position: 'absolute',
+    right: 24,
+    bottom: 24,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#4CAF50',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '90%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  form: {
+    padding: 20,
+  },
+  input: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  inputText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  submitButton: {
+    backgroundColor: '#4CAF50',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 24,
+  },
+  submitButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+});
