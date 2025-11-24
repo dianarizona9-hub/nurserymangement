@@ -410,6 +410,20 @@ async def export_to_csv(username: str = Depends(get_current_user)):
                 "propagation_method": item.get("propagation_method")
             })
     
+    # Distributed Seedlings
+    output.write("\n\n=== DISTRIBUTED SEEDLINGS ===\n")
+    if distributed:
+        writer = csv.DictWriter(output, fieldnames=["date", "type", "quantity", "destination", "location"])
+        writer.writeheader()
+        for item in distributed:
+            writer.writerow({
+                "date": item.get("date"),
+                "type": item.get("type"),
+                "quantity": item.get("quantity"),
+                "destination": item.get("destination"),
+                "location": item.get("location")
+            })
+    
     output.seek(0)
     return StreamingResponse(
         iter([output.getvalue()]),
