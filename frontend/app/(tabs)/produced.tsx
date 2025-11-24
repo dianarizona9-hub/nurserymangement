@@ -173,7 +173,7 @@ export default function Produced() {
         >
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Add Dead Seedlings</Text>
+              <Text style={styles.modalTitle}>Add Nursery Produced</Text>
               <TouchableOpacity onPress={() => { setModalVisible(false); resetForm(); }}>
                 <Ionicons name="close" size={28} color="#333" />
               </TouchableOpacity>
