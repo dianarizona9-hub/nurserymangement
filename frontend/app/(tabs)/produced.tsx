@@ -202,6 +202,20 @@ export default function Produced() {
                 keyboardType="number-pad"
               />
 
+              <TextInput
+                style={styles.input}
+                placeholder="Parent Plant"
+                value={formData.parent_plant}
+                onChangeText={(text) => setFormData({ ...formData, parent_plant: text })}
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder="Propagation Method (e.g., Seeds, Cuttings)"
+                value={formData.propagation_method}
+                onChangeText={(text) => setFormData({ ...formData, propagation_method: text })}
+              />
+
               <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
                 <Text style={styles.submitButtonText}>Add Record</Text>
               </TouchableOpacity>
