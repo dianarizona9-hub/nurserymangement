@@ -339,6 +339,7 @@ async def export_to_csv(username: str = Depends(get_current_user)):
     dead = await db.dead_seedlings.find({"user_id": username}).to_list(1000)
     discarded = await db.discarded_seedlings.find({"user_id": username}).to_list(1000)
     produced = await db.nursery_produced.find({"user_id": username}).to_list(1000)
+    distributed = await db.distributed_seedlings.find({"user_id": username}).to_list(1000)
     
     # Create CSV in memory
     output = io.StringIO()
