@@ -21,6 +21,7 @@ interface Stats {
   total_dead: number;
   total_discarded: number;
   total_produced: number;
+  total_distributed: number;
   survival_rate: number;
   total_in_nursery: number;
 }
