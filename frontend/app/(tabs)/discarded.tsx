@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#F44336',
+    backgroundColor: '#9E9E9E',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   submitButton: {
-    backgroundColor: '#F44336',
+    backgroundColor: '#9E9E9E',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
